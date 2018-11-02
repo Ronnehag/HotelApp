@@ -87,6 +87,10 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="CheckRoom" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="CheckIn" Type="date" Mode="In" />
+          <Parameter Name="CheckOut" Type="date" Mode="In" />
+        </Function>
         <Function Name="RoomAvailability" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="roomId" Type="int" Mode="In" />
           <Parameter Name="start" Type="date" Mode="In" />
@@ -218,10 +222,17 @@
             <End Role="Room" EntitySet="Rooms" />
             <End Role="Booking" EntitySet="Bookings" />
           </AssociationSet>
-          <FunctionImport Name="RoomAvailability" ReturnType="Collection(HotelModel.RoomAvailability_Result)">
-            <Parameter Name="roomId" Mode="In" Type="Int32" />
-            <Parameter Name="start" Mode="In" Type="DateTime" />
-            <Parameter Name="end" Mode="In" Type="DateTime" />
+          <FunctionImport Name="CheckRoom" ReturnType="Collection(Int32)">
+            <Parameter Name="CheckIn" Mode="In" Type="DateTime" />
+            <Parameter Name="CheckOut" Mode="In" Type="DateTime" />
+          </FunctionImport>
+          <FunctionImport Name="GetUnavailableRooms" EntitySet="Rooms" ReturnType="Collection(HotelModel.Room)">
+            <Parameter Name="CheckIn" Mode="In" Type="DateTime" />
+            <Parameter Name="CheckOut" Mode="In" Type="DateTime" />
+          </FunctionImport>
+          <FunctionImport Name="UnavailableRooms" EntitySet="Rooms" ReturnType="Collection(HotelModel.Room)">
+            <Parameter Name="CheckIn" Mode="In" Type="DateTime" />
+            <Parameter Name="CheckOut" Mode="In" Type="DateTime" />
           </FunctionImport>
         </EntityContainer>
         <ComplexType Name="RoomAvailability_Result">
@@ -232,6 +243,12 @@
           <Property Type="Decimal" Name="PricePerNight" Nullable="false" Precision="19" Scale="4" />
           <Property Type="DateTime" Name="BookedFrom" Nullable="true" Precision="23" />
           <Property Type="DateTime" Name="BookedTo" Nullable="true" Precision="23" />
+        </ComplexType>
+        <ComplexType Name="UnavailableRooms_Result">
+          <Property Type="Int32" Name="RoomId" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="GetUnavailableRooms_Result">
+          <Property Type="Int32" Name="RoomId" Nullable="false" />
         </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
@@ -289,19 +306,10 @@
           </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-          <FunctionImportMapping FunctionImportName="RoomAvailability" FunctionName="HotelModel.Store.RoomAvailability">
-            <ResultMapping>
-              <ComplexTypeMapping TypeName="HotelModel.RoomAvailability_Result">
-                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
-                <ScalarProperty Name="RoomType" ColumnName="RoomType" />
-                <ScalarProperty Name="Beds" ColumnName="Beds" />
-                <ScalarProperty Name="ExtraBeds" ColumnName="ExtraBeds" />
-                <ScalarProperty Name="PricePerNight" ColumnName="PricePerNight" />
-                <ScalarProperty Name="BookedFrom" ColumnName="BookedFrom" />
-                <ScalarProperty Name="BookedTo" ColumnName="BookedTo" />
-              </ComplexTypeMapping>
-            </ResultMapping>
+          <FunctionImportMapping FunctionImportName="CheckRoom" FunctionName="HotelModel.Store.CheckRoom" />
+          <FunctionImportMapping FunctionImportName="GetUnavailableRooms" FunctionName="HotelModel.Store.CheckRoom">
           </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="UnavailableRooms" FunctionName="HotelModel.Store.CheckRoom" />
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
   </edmx:Runtime>

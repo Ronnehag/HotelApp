@@ -58,6 +58,9 @@
       <DependentUpon>Hotel.tt</DependentUpon>
     </Compile>
     <Compile Include="CustomerNotMapped.cs" />
+    <Compile Include="GetUnavailableRooms_Result.cs">
+      <DependentUpon>Hotel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Hotel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -84,6 +87,9 @@
       <DependentUpon>Hotel.tt</DependentUpon>
     </Compile>
     <Compile Include="RoomAvailability_Result.cs">
+      <DependentUpon>Hotel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableRooms_Result.cs">
       <DependentUpon>Hotel.tt</DependentUpon>
     </Compile>
   </ItemGroup>

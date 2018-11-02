@@ -53,7 +53,6 @@ namespace HotelApp.DataModule
                     db.Customers.Remove(result);
                     db.SaveChanges();
                 }
-                //TODO
             }
         }
 

@@ -32,21 +32,69 @@ namespace HotelApp.DataModule
         public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<Room> Rooms { get; set; }
     
-        public virtual ObjectResult<RoomAvailability_Result> RoomAvailability(Nullable<int> roomId, Nullable<System.DateTime> start, Nullable<System.DateTime> end)
+        public virtual ObjectResult<Nullable<int>> CheckRoom(Nullable<System.DateTime> checkIn, Nullable<System.DateTime> checkOut)
         {
-            var roomIdParameter = roomId.HasValue ?
-                new ObjectParameter("roomId", roomId) :
-                new ObjectParameter("roomId", typeof(int));
+            var checkInParameter = checkIn.HasValue ?
+                new ObjectParameter("CheckIn", checkIn) :
+                new ObjectParameter("CheckIn", typeof(System.DateTime));
     
-            var startParameter = start.HasValue ?
-                new ObjectParameter("start", start) :
-                new ObjectParameter("start", typeof(System.DateTime));
+            var checkOutParameter = checkOut.HasValue ?
+                new ObjectParameter("CheckOut", checkOut) :
+                new ObjectParameter("CheckOut", typeof(System.DateTime));
     
-            var endParameter = end.HasValue ?
-                new ObjectParameter("end", end) :
-                new ObjectParameter("end", typeof(System.DateTime));
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<int>>("CheckRoom", checkInParameter, checkOutParameter);
+        }
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<RoomAvailability_Result>("RoomAvailability", roomIdParameter, startParameter, endParameter);
+        public virtual ObjectResult<Room> GetUnavailableRooms(Nullable<System.DateTime> checkIn, Nullable<System.DateTime> checkOut)
+        {
+            var checkInParameter = checkIn.HasValue ?
+                new ObjectParameter("CheckIn", checkIn) :
+                new ObjectParameter("CheckIn", typeof(System.DateTime));
+    
+            var checkOutParameter = checkOut.HasValue ?
+                new ObjectParameter("CheckOut", checkOut) :
+                new ObjectParameter("CheckOut", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Room>("GetUnavailableRooms", checkInParameter, checkOutParameter);
+        }
+    
+        public virtual ObjectResult<Room> GetUnavailableRooms(Nullable<System.DateTime> checkIn, Nullable<System.DateTime> checkOut, MergeOption mergeOption)
+        {
+            var checkInParameter = checkIn.HasValue ?
+                new ObjectParameter("CheckIn", checkIn) :
+                new ObjectParameter("CheckIn", typeof(System.DateTime));
+    
+            var checkOutParameter = checkOut.HasValue ?
+                new ObjectParameter("CheckOut", checkOut) :
+                new ObjectParameter("CheckOut", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Room>("GetUnavailableRooms", mergeOption, checkInParameter, checkOutParameter);
+        }
+    
+        public virtual ObjectResult<Room> UnavailableRooms(Nullable<System.DateTime> checkIn, Nullable<System.DateTime> checkOut)
+        {
+            var checkInParameter = checkIn.HasValue ?
+                new ObjectParameter("CheckIn", checkIn) :
+                new ObjectParameter("CheckIn", typeof(System.DateTime));
+    
+            var checkOutParameter = checkOut.HasValue ?
+                new ObjectParameter("CheckOut", checkOut) :
+                new ObjectParameter("CheckOut", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Room>("UnavailableRooms", checkInParameter, checkOutParameter);
+        }
+    
+        public virtual ObjectResult<Room> UnavailableRooms(Nullable<System.DateTime> checkIn, Nullable<System.DateTime> checkOut, MergeOption mergeOption)
+        {
+            var checkInParameter = checkIn.HasValue ?
+                new ObjectParameter("CheckIn", checkIn) :
+                new ObjectParameter("CheckIn", typeof(System.DateTime));
+    
+            var checkOutParameter = checkOut.HasValue ?
+                new ObjectParameter("CheckOut", checkOut) :
+                new ObjectParameter("CheckOut", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Room>("UnavailableRooms", mergeOption, checkInParameter, checkOutParameter);
         }
     }
 }
