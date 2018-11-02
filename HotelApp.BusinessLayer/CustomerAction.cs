@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HotelApp.DataModule;
+﻿using HotelApp.DataModule;
 
 namespace HotelApp.BusinessLayer
 {
@@ -27,7 +22,6 @@ namespace HotelApp.BusinessLayer
                     _customerRepository.DeleteCustomer(customer.CustomerId);
                     return true;
                 }
-
             }
             return false;
         }

@@ -71,6 +71,7 @@ namespace HotelApp.UserInterface
             if (action.UpdateBooking(_bookingId, datePicker_From.Value, datePicker_To.Value))
             {
                 MessageBox.Show("Updated");
+                Close();
             }
             else
             {

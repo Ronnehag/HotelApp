@@ -32,10 +32,7 @@ namespace HotelApp.DataModule.Repository
                 {
                     return rooms.Where(r => bookings.All(b => b.RoomId != r.RoomId)).ToList();
                 }
-                else
-                {
-                    return rooms;
-                }
+                return rooms;
             }
         }
     }

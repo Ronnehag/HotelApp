@@ -35,6 +35,16 @@ namespace HotelApp.UserInterface
             txt_Email.Text = customer.Email;
         }
 
+        private void ClearText()
+        {
+            txt_FirstName.Text = string.Empty;
+            txt_LastName.Text = string.Empty;
+            txt_Address.Text = string.Empty;
+            txt_City.Text = string.Empty;
+            txt_Country.Text = string.Empty;
+            txt_Email.Text = string.Empty;
+        }
+
         private void LoadListBox()
         {
             var repo = new CustomerRepository();
@@ -74,6 +84,8 @@ namespace HotelApp.UserInterface
             if (manager.DeleteCustomer(id))
             {
                 MessageBox.Show("Customer deleted");
+                LoadListBox();
+                ClearText();
 
             }
             else
@@ -88,7 +100,8 @@ namespace HotelApp.UserInterface
             if (listBox_RegistredCustomers.SelectedIndex == -1) return;
             var id = int.Parse(listBox_RegistredCustomers.SelectedValue.ToString());
             var manager = new CustomerAction();
-            if (manager.UpdateCustomer(id, txt_FirstName.Text, txt_LastName.Text, txt_Address.Text, txt_City.Text, txt_Country.Text, txt_Email.Text))
+            if (manager.UpdateCustomer(id, txt_FirstName.Text, txt_LastName.Text, txt_Address.Text,
+                txt_City.Text, txt_Country.Text, txt_Email.Text))
             {
                 MessageBox.Show("Customer updated");
                 LoadListBox();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HotelApp.DataModule;
 using HotelApp.DataModule.Repository;
 
@@ -15,7 +14,6 @@ namespace HotelApp.BusinessLayer
         public List<Booking> ReturnValidBookings()
         {
             var bookings = _bookingRepository.GetBookings();
-            var result = bookings;
             foreach (var booking in bookings)
             {
                 if (booking.IsValid == true) continue;
@@ -23,10 +21,10 @@ namespace HotelApp.BusinessLayer
                 {
                     booking.IsValid = false;
                     _bookingRepository.UpdateBooking(booking);
-                    result.Remove(booking);
                 }
             }
-            return result; //TODO testa
+
+            return _bookingRepository.GetBookings();
         }
 
         public void BookRoom(int roomId, DateTime from, DateTime to, int customerId)
@@ -68,28 +66,29 @@ namespace HotelApp.BusinessLayer
 
                 if (booking.CheckIn >= selectedFrom || booking.CheckOut <= selectedTo)
                 {
-                    //SetAndUpdateBooking(bookedRoom, invoice, selectedTo, selectedFrom, customerBooking);
-                    //return true;
+                    SetAndUpdateBooking(invoice, selectedTo, selectedFrom, customerBooking);
+                    return true;
                 }
             }
-
             return false;
 
         }
 
-        //private void SetAndUpdateBooking(Room bookedRoom, Invoice invoice, DateTime selectedToo, DateTime selectedFrom,
-        //    Booking customerBooking)
-        //{
-        //    bookedRoom.BookedTo = selectedToo;
-        //    bookedRoom.BookedFrom = selectedFrom;
-        //    invoice.Amount = CalculatePrice(selectedFrom, selectedToo, customerBooking.RoomId);
-        //    _bookingRepository.UpdateBooking(customerBooking);
-        //}
+        private void SetAndUpdateBooking(Invoice invoice, DateTime selectedToo, DateTime selectedFrom,
+            Booking customerBooking)
+        {
+            customerBooking.CheckOut = selectedToo;
+            customerBooking.CheckIn = selectedFrom;
+            invoice.Amount = CalculatePrice(selectedFrom, selectedToo, customerBooking.RoomId);
+            _bookingRepository.UpdateBooking(customerBooking);
+        }
 
-        public decimal CalculatePrice(DateTime from, DateTime to, int roomid)
+        public decimal CalculatePrice(DateTime fromDate, DateTime toDate, int roomid)
         {
             var room = _roomRepository.GetRoom(roomid);
-            var days = (to - from).Days;
+            var timeSpan = (toDate.Date - fromDate.Date);
+            var days = (int)timeSpan.TotalDays;
+
             if (days == 0)
             {
                 return room.PricePerNight;
