@@ -12,6 +12,8 @@ namespace HotelApp.DataModule
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class HotelEntities : DbContext
     {
@@ -29,5 +31,22 @@ namespace HotelApp.DataModule
         public virtual DbSet<Customer> Customers { get; set; }
         public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<Room> Rooms { get; set; }
+    
+        public virtual ObjectResult<RoomAvailability_Result> RoomAvailability(Nullable<int> roomId, Nullable<System.DateTime> start, Nullable<System.DateTime> end)
+        {
+            var roomIdParameter = roomId.HasValue ?
+                new ObjectParameter("roomId", roomId) :
+                new ObjectParameter("roomId", typeof(int));
+    
+            var startParameter = start.HasValue ?
+                new ObjectParameter("start", start) :
+                new ObjectParameter("start", typeof(System.DateTime));
+    
+            var endParameter = end.HasValue ?
+                new ObjectParameter("end", end) :
+                new ObjectParameter("end", typeof(System.DateTime));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<RoomAvailability_Result>("RoomAvailability", roomIdParameter, startParameter, endParameter);
+        }
     }
 }

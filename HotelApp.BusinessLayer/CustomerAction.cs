@@ -69,7 +69,8 @@ namespace HotelApp.BusinessLayer
                 PostalCode =  postalCode,
                 City = city,
                 Country = country,
-                Email = email
+                Email = email,
+                Bookings = null
             };
             _customerRepository.SaveCustomer(customer);
             return true;

@@ -33,6 +33,10 @@ namespace HotelApp.UserInterface
                 MessageBox.Show("Invoice payment is registred");
                 Close();
             }
+            else
+            {
+                MessageBox.Show("Paid amount has to match the amount for the invoice");
+            }
         }
     }
 }

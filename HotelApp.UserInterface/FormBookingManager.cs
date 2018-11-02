@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Windows.Forms;
 using HotelApp.BusinessLayer;
-using HotelApp.DataModule;
 using HotelApp.DataModule.Repository;
 
 namespace HotelApp.UserInterface
@@ -18,16 +17,16 @@ namespace HotelApp.UserInterface
         public void LoadBookings()
         {
             var manager = new BookingAction();
-            var bookings = manager.GetValidatedBookings();
+            var bookings = manager.ReturnValidBookings();
             var view = bookings.Select(b => new
             {
                 BookingID = b.BookingId,
                 Room = b.Room.RoomType,
                 Paid = b.Invoice.IsPaid,
                 Customer = b.Customer.FullName,
-                BookedDate = b.DateBooked,
-                From = b.Room.BookedFrom,
-                To = b.Room.BookedTo
+                BookedDate = b.DateBooked.Date,
+                CheckIn = b.CheckIn.Date,
+                CheckOut = b.CheckOut.Date
             });
             var source = new BindingSource {DataSource = view};
             dataGridView_Bookings.DataSource = source;
@@ -45,8 +44,8 @@ namespace HotelApp.UserInterface
         {
             if (dataGridView_Bookings.SelectedRows.Count < 0) return;
             var bookingId = int.Parse(dataGridView_Bookings.SelectedCells[0].Value.ToString());
-            var manager = new BookingAction();
-            manager.DeleteBooking(bookingId);
+            var repo = new BookingRepository();
+            repo.Delete(bookingId);
             MessageBox.Show("Booking deleted");
             LoadBookings();
 
@@ -57,6 +56,11 @@ namespace HotelApp.UserInterface
             if (dataGridView_Bookings.SelectedRows.Count < 0) return;
             var bookingId = int.Parse(dataGridView_Bookings.SelectedCells[0].Value.ToString());
             new FormUpdateBooking(bookingId).Show();
+        }
+
+        private void btn_Refresh_Click(object sender, EventArgs e)
+        {
+            LoadBookings();
         }
     }
 }

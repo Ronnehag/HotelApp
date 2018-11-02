@@ -10,23 +10,15 @@
 namespace HotelApp.DataModule
 {
     using System;
-    using System.Collections.Generic;
     
-    public partial class Room
+    public partial class RoomAvailability_Result
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Room()
-        {
-            this.Bookings = new HashSet<Booking>();
-        }
-    
         public int RoomId { get; set; }
         public string RoomType { get; set; }
         public int Beds { get; set; }
         public int ExtraBeds { get; set; }
         public decimal PricePerNight { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Booking> Bookings { get; set; }
+        public Nullable<System.DateTime> BookedFrom { get; set; }
+        public Nullable<System.DateTime> BookedTo { get; set; }
     }
 }

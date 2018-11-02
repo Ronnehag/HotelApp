@@ -11,7 +11,6 @@ namespace HotelApp.UserInterface
         public FormMain()
         {
             InitializeComponent();
-            LoadListBox();
         }
 
         private void btn_AddNewCustomer_Click(object sender, EventArgs e)

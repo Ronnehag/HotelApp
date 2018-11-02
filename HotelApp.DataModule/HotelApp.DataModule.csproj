@@ -83,6 +83,9 @@
     <Compile Include="Room.cs">
       <DependentUpon>Hotel.tt</DependentUpon>
     </Compile>
+    <Compile Include="RoomAvailability_Result.cs">
+      <DependentUpon>Hotel.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

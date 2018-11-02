@@ -10,12 +10,14 @@ namespace HotelApp.UserInterface
     {
         private readonly int _bookingId;
         private readonly Room _room;
+        private readonly Booking _Booking;
 
         public FormUpdateBooking(int bookingId)
         {
             _bookingId = bookingId;
             var repo = new BookingRepository();
             _room = repo.GetBooking(_bookingId).Room;
+            _Booking = repo.GetBooking(bookingId);
             InitializeComponent();
             ShowInformation();
             GenerateComboBox();
@@ -23,9 +25,8 @@ namespace HotelApp.UserInterface
 
         private void ShowInformation()
         {
-            var manager = new BookingAction();
-            datePicker_From.Value = _room.BookedFrom.Value;
-            datePicker_To.Value = _room.BookedTo.Value;
+            datePicker_From.Value = _Booking.CheckIn;
+            datePicker_To.Value = _Booking.CheckOut;
             txt_PerNight.Text = _room.PricePerNight.ToString("C0");
             txt_Beds.Text = _room.Beds.ToString();
             UpdateInformation();
@@ -43,12 +44,14 @@ namespace HotelApp.UserInterface
             {
                 cb_Customers.Items.Add(i);
             }
-
-            for (int j = 1; j < (_room.ExtraBeds + 1); j++)
+            if (_room.ExtraBeds != 0)
             {
-                cb_ExtraBeds.Items.Add(j);
+                for (int j = 1; j < (_room.ExtraBeds + 1); j++)
+                {
+                    cb_ExtraBeds.Items.Add(j);
+                }
+                cb_ExtraBeds.SelectedIndex = 0;
             }
-            cb_ExtraBeds.SelectedIndex = 0;
             cb_Customers.SelectedIndex = 0;
         }
 
@@ -60,6 +63,19 @@ namespace HotelApp.UserInterface
         private void datePicker_From_ValueChanged(object sender, EventArgs e)
         {
             UpdateInformation();
+        }
+
+        private void btn_Update_Click(object sender, EventArgs e)
+        {
+            var action = new BookingAction();
+            if (action.UpdateBooking(_bookingId, datePicker_From.Value, datePicker_To.Value))
+            {
+                MessageBox.Show("Updated");
+            }
+            else
+            {
+                MessageBox.Show("Invalid dates, it's already booked");
+            }
         }
     }
 }

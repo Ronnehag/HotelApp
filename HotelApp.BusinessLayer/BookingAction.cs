@@ -12,30 +12,26 @@ namespace HotelApp.BusinessLayer
         private readonly BookingRepository _bookingRepository = new BookingRepository();
         private readonly CustomerRepository _customerRepository = new CustomerRepository();
 
-        public List<Booking> GetValidatedBookings()
+        public List<Booking> ReturnValidBookings()
         {
             var bookings = _bookingRepository.GetBookings();
+            var result = bookings;
             foreach (var booking in bookings)
             {
-                if((DateTime.Today - booking.DateBooked).Days > 10 && !booking.Invoice.IsPaid)
+                if (booking.IsValid == true) continue;
+                if ((DateTime.Today - booking.DateBooked).Days > 10 && !booking.Invoice.IsPaid)
                 {
                     booking.IsValid = false;
-                    booking.Room.BookedFrom = null;
-                    booking.Room.BookedTo = null;
                     _bookingRepository.UpdateBooking(booking);
+                    result.Remove(booking);
                 }
             }
-
-            bookings = _bookingRepository.GetBookings();
-
-            return bookings;
+            return result; //TODO testa
         }
 
         public void BookRoom(int roomId, DateTime from, DateTime to, int customerId)
         {
             var room = _roomRepository.GetRoom(roomId);
-            room.BookedTo = to;
-            room.BookedFrom = from;
             var customer = _customerRepository.GetCustomer(customerId);
 
             var invoice = new Invoice
@@ -51,10 +47,44 @@ namespace HotelApp.BusinessLayer
                 DateBooked = DateTime.Now,
                 RoomId = room.RoomId,
                 Room = room,
+                CheckIn = from,
+                CheckOut = to,
                 Invoice = invoice
             };
             _bookingRepository.AddBooking(booking);
         }
+
+
+        public bool UpdateBooking(int bookingId, DateTime selectedFrom, DateTime selectedTo)
+        {
+            var customerBooking = _bookingRepository.GetBooking(bookingId);
+            var bookedRoom = customerBooking.Room;
+            var invoice = customerBooking.Invoice;
+
+            var bookings = _bookingRepository.GetBookings();
+            foreach (var booking in bookings)
+            {
+                if (booking.RoomId != bookedRoom.RoomId) continue;
+
+                if (booking.CheckIn >= selectedFrom || booking.CheckOut <= selectedTo)
+                {
+                    //SetAndUpdateBooking(bookedRoom, invoice, selectedTo, selectedFrom, customerBooking);
+                    //return true;
+                }
+            }
+
+            return false;
+
+        }
+
+        //private void SetAndUpdateBooking(Room bookedRoom, Invoice invoice, DateTime selectedToo, DateTime selectedFrom,
+        //    Booking customerBooking)
+        //{
+        //    bookedRoom.BookedTo = selectedToo;
+        //    bookedRoom.BookedFrom = selectedFrom;
+        //    invoice.Amount = CalculatePrice(selectedFrom, selectedToo, customerBooking.RoomId);
+        //    _bookingRepository.UpdateBooking(customerBooking);
+        //}
 
         public decimal CalculatePrice(DateTime from, DateTime to, int roomid)
         {
@@ -79,15 +109,6 @@ namespace HotelApp.BusinessLayer
                 return true;
             }
             return false;
-        }
-
-        public void DeleteBooking(int bookingId)
-        {
-            var booking = _bookingRepository.GetBooking(bookingId);
-            booking.Room.BookedFrom = null;
-            booking.Room.BookedTo = null;
-            var repo = new BookingRepository();
-            repo.Delete(booking);
         }
     }
 }

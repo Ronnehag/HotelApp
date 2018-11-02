@@ -15,6 +15,8 @@
           <Property Name="CustomerId" Type="int" Nullable="false" />
           <Property Name="RoomId" Type="int" Nullable="false" />
           <Property Name="InvoiceId" Type="int" Nullable="false" />
+          <Property Name="CheckIn" Type="datetime" Nullable="false" />
+          <Property Name="CheckOut" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="Customers">
           <Key>
@@ -28,6 +30,7 @@
           <Property Name="PostalCode" Type="varchar" MaxLength="50" />
           <Property Name="City" Type="varchar" MaxLength="50" />
           <Property Name="Country" Type="varchar" MaxLength="50" />
+          <Property Name="BookingId" Type="nchar" MaxLength="10" />
         </EntityType>
         <EntityType Name="Invoices">
           <Key>
@@ -47,10 +50,8 @@
           <Property Name="Beds" Type="int" Nullable="false" />
           <Property Name="ExtraBeds" Type="int" Nullable="false" />
           <Property Name="PricePerNight" Type="decimal" Precision="19" Scale="4" Nullable="false" />
-          <Property Name="BookedFrom" Type="datetime" />
-          <Property Name="BookedTo" Type="datetime" />
         </EntityType>
-        <Association Name="FK_Booking_Customer">
+        <Association Name="FK_Bookings_Customers">
           <End Role="Customers" Type="Self.Customers" Multiplicity="1" />
           <End Role="Bookings" Type="Self.Bookings" Multiplicity="*" />
           <ReferentialConstraint>
@@ -62,7 +63,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Booking_Invoice">
+        <Association Name="FK_Bookings_Invoices">
           <End Role="Invoices" Type="Self.Invoices" Multiplicity="1" />
           <End Role="Bookings" Type="Self.Bookings" Multiplicity="*" />
           <ReferentialConstraint>
@@ -74,7 +75,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Booking_Room">
+        <Association Name="FK_Bookings_Rooms1">
           <End Role="Rooms" Type="Self.Rooms" Multiplicity="1" />
           <End Role="Bookings" Type="Self.Bookings" Multiplicity="*" />
           <ReferentialConstraint>
@@ -86,20 +87,25 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="RoomAvailability" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="roomId" Type="int" Mode="In" />
+          <Parameter Name="start" Type="date" Mode="In" />
+          <Parameter Name="end" Type="date" Mode="In" />
+        </Function>
         <EntityContainer Name="HotelModelStoreContainer">
           <EntitySet Name="Bookings" EntityType="Self.Bookings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Customers" EntityType="Self.Customers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Invoices" EntityType="Self.Invoices" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Rooms" EntityType="Self.Rooms" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK_Booking_Customer" Association="Self.FK_Booking_Customer">
+          <AssociationSet Name="FK_Bookings_Customers" Association="Self.FK_Bookings_Customers">
             <End Role="Customers" EntitySet="Customers" />
             <End Role="Bookings" EntitySet="Bookings" />
           </AssociationSet>
-          <AssociationSet Name="FK_Booking_Invoice" Association="Self.FK_Booking_Invoice">
+          <AssociationSet Name="FK_Bookings_Invoices" Association="Self.FK_Bookings_Invoices">
             <End Role="Invoices" EntitySet="Invoices" />
             <End Role="Bookings" EntitySet="Bookings" />
           </AssociationSet>
-          <AssociationSet Name="FK_Booking_Room" Association="Self.FK_Booking_Room">
+          <AssociationSet Name="FK_Bookings_Rooms1" Association="Self.FK_Bookings_Rooms1">
             <End Role="Rooms" EntitySet="Rooms" />
             <End Role="Bookings" EntitySet="Bookings" />
           </AssociationSet>
@@ -121,6 +127,8 @@
           <NavigationProperty Name="Customer" Relationship="Self.FK_Booking_Customer" FromRole="Booking" ToRole="Customer" />
           <NavigationProperty Name="Invoice" Relationship="Self.FK_Booking_Invoice" FromRole="Booking" ToRole="Invoice" />
           <NavigationProperty Name="Room" Relationship="Self.FK_Booking_Room" FromRole="Booking" ToRole="Room" />
+          <Property Name="CheckIn" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CheckOut" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
         <EntityType Name="Customer">
           <Key>
@@ -135,6 +143,7 @@
           <Property Name="City" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Country" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Bookings" Relationship="Self.FK_Booking_Customer" FromRole="Customer" ToRole="Booking" />
+          <Property Name="BookingId" Type="String" MaxLength="10" FixedLength="true" Unicode="true" />
         </EntityType>
         <EntityType Name="Invoice">
           <Key>
@@ -154,8 +163,6 @@
           <Property Name="Beds" Type="Int32" Nullable="false" />
           <Property Name="ExtraBeds" Type="Int32" Nullable="false" />
           <Property Name="PricePerNight" Type="Decimal" Precision="19" Scale="4" Nullable="false" />
-          <Property Name="BookedFrom" Type="DateTime" Precision="3" />
-          <Property Name="BookedTo" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Bookings" Relationship="Self.FK_Booking_Room" FromRole="Room" ToRole="Booking" />
         </EntityType>
         <Association Name="FK_Booking_Customer">
@@ -211,7 +218,21 @@
             <End Role="Room" EntitySet="Rooms" />
             <End Role="Booking" EntitySet="Bookings" />
           </AssociationSet>
+          <FunctionImport Name="RoomAvailability" ReturnType="Collection(HotelModel.RoomAvailability_Result)">
+            <Parameter Name="roomId" Mode="In" Type="Int32" />
+            <Parameter Name="start" Mode="In" Type="DateTime" />
+            <Parameter Name="end" Mode="In" Type="DateTime" />
+          </FunctionImport>
         </EntityContainer>
+        <ComplexType Name="RoomAvailability_Result">
+          <Property Type="Int32" Name="RoomId" Nullable="false" />
+          <Property Type="String" Name="RoomType" Nullable="false" MaxLength="50" />
+          <Property Type="Int32" Name="Beds" Nullable="false" />
+          <Property Type="Int32" Name="ExtraBeds" Nullable="false" />
+          <Property Type="Decimal" Name="PricePerNight" Nullable="false" Precision="19" Scale="4" />
+          <Property Type="DateTime" Name="BookedFrom" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="BookedTo" Nullable="true" Precision="23" />
+        </ComplexType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -221,7 +242,9 @@
     <EntitySetMapping Name="Bookings">
       <EntityTypeMapping TypeName="IsTypeOf(HotelModel.Booking)">
         <MappingFragment StoreEntitySet="Bookings">
-          <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+          <ScalarProperty Name="CheckOut" ColumnName="CheckOut" />
+                <ScalarProperty Name="CheckIn" ColumnName="CheckIn" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
           <ScalarProperty Name="IsValid" ColumnName="IsValid" />
           <ScalarProperty Name="DateBooked" ColumnName="DateBooked" />
           <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
@@ -233,7 +256,8 @@
     <EntitySetMapping Name="Customers">
       <EntityTypeMapping TypeName="IsTypeOf(HotelModel.Customer)">
         <MappingFragment StoreEntitySet="Customers">
-          <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+          <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
           <ScalarProperty Name="FirstName" ColumnName="FirstName" />
           <ScalarProperty Name="LastName" ColumnName="LastName" />
           <ScalarProperty Name="Email" ColumnName="Email" />
@@ -262,11 +286,22 @@
           <ScalarProperty Name="Beds" ColumnName="Beds" />
           <ScalarProperty Name="ExtraBeds" ColumnName="ExtraBeds" />
           <ScalarProperty Name="PricePerNight" ColumnName="PricePerNight" />
-          <ScalarProperty Name="BookedFrom" ColumnName="BookedFrom" />
-          <ScalarProperty Name="BookedTo" ColumnName="BookedTo" />
-        </MappingFragment>
+          </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="RoomAvailability" FunctionName="HotelModel.Store.RoomAvailability">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="HotelModel.RoomAvailability_Result">
+                <ScalarProperty Name="RoomId" ColumnName="RoomId" />
+                <ScalarProperty Name="RoomType" ColumnName="RoomType" />
+                <ScalarProperty Name="Beds" ColumnName="Beds" />
+                <ScalarProperty Name="ExtraBeds" ColumnName="ExtraBeds" />
+                <ScalarProperty Name="PricePerNight" ColumnName="PricePerNight" />
+                <ScalarProperty Name="BookedFrom" ColumnName="BookedFrom" />
+                <ScalarProperty Name="BookedTo" ColumnName="BookedTo" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
   </EntityContainerMapping>
 </Mapping></edmx:Mappings>
   </edmx:Runtime>

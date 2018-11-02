@@ -11,32 +11,35 @@ namespace HotelApp.DataModule.Repository
         {
             using (var db = new HotelEntities())
             {
-                db.Entry(booking.Room).State = EntityState.Modified;
-                db.Entry(booking.Customer).State = EntityState.Modified;
+                db.Entry(booking.Room).State = EntityState.Unchanged;
+                db.Entry(booking.Customer).State = EntityState.Unchanged;
                 db.Bookings.Add(booking);
                 db.Invoices.Add(booking.Invoice);
                 db.SaveChanges();
             }
         }
 
-        public void Delete(Booking booking)
+        public void Delete(int bookingId)
         {
             using (var db = new HotelEntities())
             {
-                db.Entry(booking.Room).State = EntityState.Modified;
-                db.Entry(booking.Invoice).State = EntityState.Deleted;
-                db.Bookings.Remove(booking);
-                db.SaveChanges();
+                var booking = db.Bookings.Include("Room").Include("Invoice").SingleOrDefault(b => b.BookingId == bookingId);
+                if (booking != null)
+                {
+                    db.Entry(booking.Invoice).State = EntityState.Deleted;
+                    db.Bookings.Remove(booking);
+                    db.SaveChanges();
+                }
             }
+
         }
 
         public void UpdateBooking(Booking booking)
         {
             using (var db = new HotelEntities())
             {
-                db.Entry(booking.Invoice).State = EntityState.Deleted;
+                db.Entry(booking.Invoice).State = EntityState.Modified;
                 db.Entry(booking).State = EntityState.Modified;
-                db.Entry(booking.Room).State = EntityState.Modified;
                 db.SaveChanges();
             }
         }
@@ -54,7 +57,8 @@ namespace HotelApp.DataModule.Repository
         {
             using (var db = new HotelEntities())
             {
-                return db.Bookings.Include("Customer").Include("Room").Include("Invoice").SingleOrDefault(b => b.BookingId == id);
+                return db.Bookings.Include("Customer").Include("Room").Include("Invoice")
+                    .SingleOrDefault(b => b.BookingId == id);
             }
         }
     }

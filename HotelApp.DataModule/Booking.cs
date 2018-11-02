@@ -20,6 +20,8 @@ namespace HotelApp.DataModule
         public int CustomerId { get; set; }
         public int RoomId { get; set; }
         public int InvoiceId { get; set; }
+        public System.DateTime CheckIn { get; set; }
+        public System.DateTime CheckOut { get; set; }
     
         public virtual Customer Customer { get; set; }
         public virtual Invoice Invoice { get; set; }
