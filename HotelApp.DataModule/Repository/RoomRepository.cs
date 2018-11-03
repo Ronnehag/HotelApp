@@ -26,13 +26,12 @@ namespace HotelApp.DataModule.Repository
                 {
                     return rooms.Where(r => unavailable.All(b => b.RoomId != r.RoomId)).ToList();
                 }
-                else
-                {
-                    return rooms;
-                }
-                
+                return rooms;
 
-                // WITHOUT STORED PROCEDURE
+
+
+                // WITHOUT STORED PROCEDURE //
+
                 //var rooms = db.Rooms.Where(r => r.Beds + r.ExtraBeds >= persons).ToList();
                 //var bookings = (from b in db.Bookings
                 //                where
@@ -42,7 +41,7 @@ namespace HotelApp.DataModule.Repository
                 //                    ((checkIn >= b.CheckIn) && (checkIn <= b.CheckOut) && (checkOut >= b.CheckOut)) ||
                 //                    (checkIn <= b.CheckIn) && (checkOut >= b.CheckOut)
                 //                select b.Room).ToList();
-              
+
 
                 //if (bookings.Count > 0)
                 //{
